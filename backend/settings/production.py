@@ -8,6 +8,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', SECRET_KEY)
 
 ALLOWED_HOSTS = [
     'passpilot-backend.onrender.com',
+    'passpilot-backend-etcp.onrender.com',
 ]
 
 DATABASES = {

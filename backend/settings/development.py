@@ -7,6 +7,8 @@ ALLOWED_HOSTS = [
     'localhost',
     '192.168.20.14',
     '192.168.1.121',
+    'passpilot-backend-etcp.onrender.com',
+    'passpilot-backend.onrender.com',
 ]
 
 DATABASES = {
