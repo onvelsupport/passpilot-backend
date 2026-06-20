@@ -1,7 +1,13 @@
 from pathlib import Path
 from datetime import timedelta
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
+
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 SECRET_KEY = 'django-insecure-u9!3hnhj14n9fwu8c*_wzdp@gdya_ih5h2f^4)qr!d&_whl7*5'
 

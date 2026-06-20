@@ -1,43 +1,62 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
+from google import genai
+
+from django.conf import settings
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
+client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
 
-class CoachView(APIView):
-    permission_classes = [IsAuthenticated]
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def ask_coach(request):
+    question = request.data.get("question", "").strip()
 
-    def post(self, request):
-        message = request.data.get('message', '').lower()
+    if not question:
+        return Response(
+            {"reply": "Please ask a question first."},
+            status=400,
+        )
 
-        if 'roundabout' in message:
-            reply = (
-                "Approach slowly, choose the correct lane early, "
-                "give way to traffic from the right and signal before exiting."
-            )
+    try:
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=f"""
+You are PassPilot AI Coach.
 
-        elif 'road sign' in message or 'sign' in message:
-            reply = (
-                "Red circles give orders, triangles give warnings "
-                "and blue signs usually provide instructions."
-            )
+You help learner drivers prepare for:
 
-        elif 'hazard' in message:
-            reply = (
-                "A hazard is anything that could make you change speed or direction."
-            )
+- UK Theory Test
+- Road Signs
+- Hazard Perception
+- Practical Driving Test
+- Roundabouts
+- Motorways
+- Parking
+- Manoeuvres
+- Vehicle Safety
 
-        elif 'fail' in message or 'practical test' in message:
-            reply = (
-                "Common reasons for failing include poor observation, "
-                "incorrect mirror checks and bad lane discipline."
-            )
+You can answer general questions too.
 
-        else:
-            reply = (
-                "I can help with theory questions, road signs, "
-                "hazard perception and practical test preparation."
-            )
+Always explain clearly and encourage safe driving.
+
+User question:
+
+{question}
+"""
+        )
 
         return Response({
-            'reply': reply
+            "reply": response.text
         })
+
+    except Exception as e:
+        print("Gemini error:", e)
+
+        return Response(
+            {
+                "reply": "Sorry, I couldn't connect to the AI coach right now."
+            },
+            status=500
+        )
